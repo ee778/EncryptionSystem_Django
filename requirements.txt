@@ -1,0 +1,10 @@
+djangorestframework~=3.14.0
+markdown
+django-filter
+PyYAML
+uritemplate
+django-guardian
+Django~=5.0.1
+alibabacloud_dysmsapi20170525==2.0.24
+channels
+daphne
