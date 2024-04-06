@@ -12,7 +12,7 @@ from rest_framework.views import APIView
 
 from EncryptionSystem_Main.serializers import UserSerializer, CipherTextSerializer, KeyFileSerializer, \
     PrivateKeyCPHTSerializer, publicKeySerializer
-from EncryptionSystem_Main.models import User, SMCMSG, KeyFile, PrivateKeyCPHT, PublicKey
+from EncryptionSystem_Main.models import User, SMCMSG, KeyFile, PrivateKeyCPHT, PublicKey, Contacts
 from .aliyun_sms_sdk import AliyunSmsSDK
 
 from .permissions import RegistrationPermission
@@ -317,7 +317,7 @@ class KeyFileView(APIView):
         # 通过用户名获取在User表中的id
         user_id = User.objects.get(user_name=user_name).user_id
         if not user_id:
-            return Response({'message': '用户不存在'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'msg': '用户不存在'}, status=status.HTTP_400_BAD_REQUEST)
         request.data['kfile_user_id'] = user_id
         request.data['kfile_id'] = uuid.uuid4()
         serializer = KeyFileSerializer(data=request.data)
@@ -326,4 +326,28 @@ class KeyFileView(APIView):
             return Response(data={'message': 'create success', 'kfile_id': serializer.data['kfile_id']}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+class ContactListView(APIView):
+    def post(self, request):
+        # 获取用户id
+        user_id = request.data['user_id']
+        queryobject = User.objects.get(user_id=user_id)
+        if not queryobject:
+            return Response({'msg': 'user not exist'}, status=status.HTTP_400_BAD_REQUEST)
+        contacts = Contacts.objects.all()
+        users = User.objects.all()
+        user_dict = {user.user_id: user for user in users}
+        # 获取用户id 的联系人列表
+        queryContacts = Contacts.objects.filter(con_userid=user_id)
+
+        jsonResponse = []
+        for contact in queryContacts:
+            user = User.objects.get(user_id=contact.con_contact_id)
+            if user:
+                jsonResponse.append({
+                    'user_id': user.user_id,
+                    'user_phone': user.user_phone,
+                    'user_name': user.user_name
+                })
+
+        return Response(jsonResponse, status=status.HTTP_200_OK)
 

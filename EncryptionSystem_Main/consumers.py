@@ -204,5 +204,5 @@ class ChatConsumer(AsyncWebsocketConsumer):
             jsonMsg['kfile_id'] = event['kfile_id']
             jsonMsg['file_id'] = event['file_id']
             jsonMsg['status'] = event['status']
-        jsonMsg['type'] = 'chat_message'
+        jsonMsg['msg_type'] = 'chat_message'
         await self.send(text_data=json.dumps(jsonMsg))

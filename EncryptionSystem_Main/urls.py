@@ -23,6 +23,7 @@ urlpatterns = [
     path('user/upload/file/', views.EncryptedFileUploadView.as_view(), name='file-upload'),
     path('user/download/file/', views.CipherTextDownloadView.as_view(), name='file-downlaod'),
     path('user/upload/keyfile/', views.KeyFileView.as_view(), name='keyfile-upload'),
+    path('user/getcontacts/', views.ContactListView.as_view(), name="getcontacts")
 ]
 
 websocket_urlpatterns = [
