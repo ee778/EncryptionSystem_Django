@@ -20,10 +20,11 @@ urlpatterns = [
     path('user/login/', views.LoginVerification.as_view(), name='login'),
     path('user/modify/', views.ModifyPwdVerification.as_view(), name='modify'),
     path('test/', views.MyDRFApiView.as_view(), name='test'),
-    path('user/upload/file/', views.EncryptedFileUploadView.as_view(), name='file-upload'),
-    path('user/download/file/', views.CipherTextDownloadView.as_view(), name='file-downlaod'),
-    path('user/upload/keyfile/', views.KeyFileView.as_view(), name='keyfile-upload'),
-    path('user/getcontacts/', views.ContactListView.as_view(), name="getcontacts")
+    path('upload/file/', views.EncryptedFileUploadView.as_view(), name='file-upload'),
+    path('download/file/', views.CipherTextDownloadView.as_view(), name='file-downlaod'),
+    path('upload/keyfile/', views.KeyFileView.as_view(), name='keyfile-upload'),
+    path('user/getcontacts/', views.ContactListView.as_view(), name="getcontacts"),
+    path('user/getUserInfo/', views.UserInfoView.as_view(), name="UserInfo"),
 ]
 
 websocket_urlpatterns = [

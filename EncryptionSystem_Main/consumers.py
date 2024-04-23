@@ -5,7 +5,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 
 from rest_framework.authtoken.models import Token as AuthtokenToken
 
-from EncryptionSystem_Main.models import ContactApply, CheckRecord
+from EncryptionSystem_Main.models import ContactApply, CheckRecord, User
 from EncryptionSystem_Main.serializers import ContactApplySerializer, ContactSerializer, CheckRecordSerializer
 
 
@@ -187,6 +187,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             jsonMsg['user_id'] = event['user_id']
             jsonMsg['receiver_id'] = event['receiver_id']
             jsonMsg['apply_info'] = event['apply_info']
+            jsonMsg['user_name'] = event['user_name']
+
         elif msgType == 'friend.recv':
             jsonMsg['user_id'] = event['user_id']
             jsonMsg['receiver_id'] = event['receiver_id']

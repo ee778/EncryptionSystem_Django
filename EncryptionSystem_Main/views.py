@@ -4,6 +4,7 @@ from datetime import datetime, timedelta
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User as AuthUser
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -86,6 +87,8 @@ class EncryptedFileUploadView(APIView):
         request.data['cpht_size'] = file_size
         # 获取用户名
         user_name = request.user.username
+        # 获取文件id
+        request.data['cpht_id'] = request.POST.get("uuid")
         # 通过用户名获取在User表中的id
         user_id = User.objects.get(user_name=user_name).user_id
         if not user_id:
@@ -99,7 +102,7 @@ class EncryptedFileUploadView(APIView):
             # a: 不能在访问serializer.data后调用.save()。如果需要在提交到数据库之前访问数据，请检查'serializer.validated_data'。
             serializer.save()
             # 在这里执行文件上传的操作
-            return Response({'message': '文件上传成功'})
+            return Response({'message': '文件上传成功'}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # 密文文件下发
@@ -330,6 +333,7 @@ class ContactListView(APIView):
     def post(self, request):
         # 获取用户id
         user_id = request.data['user_id']
+
         queryobject = User.objects.get(user_id=user_id)
         if not queryobject:
             return Response({'msg': 'user not exist'}, status=status.HTTP_400_BAD_REQUEST)
@@ -350,4 +354,44 @@ class ContactListView(APIView):
                 })
 
         return Response(jsonResponse, status=status.HTTP_200_OK)
+
+
+
+class UserInfoView(APIView):
+    def post(self, request):
+        # 获取查询的信息
+        user_info = request.data['user_info']
+        jsonResponse = dict()
+        # 查询是否存在这个手机号
+        try:
+            queryobject = User.objects.get(user_phone=user_info)
+
+            if queryobject:
+                jsonResponse["status"] = "success"
+                jsonResponse["user_id"] = queryobject.user_id
+                jsonResponse["user_phone"] = queryobject.user_phone
+                jsonResponse["user_name"] = queryobject.user_name
+                return Response(jsonResponse, status=status.HTTP_200_OK)
+
+
+
+        except ObjectDoesNotExist:
+            pass
+
+        try:
+            queryobject1 = User.objects.get(user_name=user_info)
+
+            if queryobject1:
+                jsonResponse["status"] = "success"
+                jsonResponse["user_id"] = queryobject1.user_id
+                jsonResponse["user_phone"] = queryobject1.user_phone
+                jsonResponse["user_name"] = queryobject1.user_name
+                return Response(jsonResponse, status=status.HTTP_200_OK)
+
+        except ObjectDoesNotExist:
+            pass
+
+        jsonResponse["status"] = "fail"
+        return Response(jsonResponse, status=status.HTTP_200_OK)
+
 

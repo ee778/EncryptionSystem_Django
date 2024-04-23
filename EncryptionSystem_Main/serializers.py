@@ -24,11 +24,11 @@ class CipherTextSerializer(serializers.ModelSerializer):
     class Meta:
         model = CipherText
         fields = ['cpht_file', 'cpht_user_id', 'cpht_name', 'cpht_size', 'cpht_kfile_id',
-                  'cpht_type']  # 表示传入的参数中需要进行加载的内容
+                  'cpht_type', 'cpht_id']  # 表示传入的参数中需要进行加载的内容
 
     def create(self, validated_data):
         # 生成全局唯一码作为密文id
-        validated_data["cpht_id"] = uuid.uuid4()
+        #validated_data["cpht_id"] = uuid.uuid4()
         # 创建密文表
         cipher_text = CipherText.objects.create(**validated_data)
         return cipher_text
