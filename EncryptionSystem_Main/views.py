@@ -5,6 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User as AuthUser
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
+from django.http import FileResponse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.parsers import MultiPartParser, FormParser
@@ -13,7 +14,7 @@ from rest_framework.views import APIView
 
 from EncryptionSystem_Main.serializers import UserSerializer, CipherTextSerializer, KeyFileSerializer, \
     PrivateKeyCPHTSerializer, publicKeySerializer
-from EncryptionSystem_Main.models import User, SMCMSG, KeyFile, PrivateKeyCPHT, PublicKey, Contacts
+from EncryptionSystem_Main.models import User, SMCMSG, KeyFile, PrivateKeyCPHT, PublicKey, Contacts, CipherText
 from .aliyun_sms_sdk import AliyunSmsSDK
 
 from .permissions import RegistrationPermission
@@ -113,21 +114,23 @@ class CipherTextDownloadView(APIView):
         if not file_id:
             return Response({'message': 'file_id is empty'}, status=status.HTTP_400_BAD_REQUEST)
         # 获取对应的文件
-        file = KeyFile.objects.filter(kfile_id=file_id)
+        file = CipherText.objects.filter(cpht_id=file_id)
         if not file:
             return Response({'message': 'file not exist'}, status=status.HTTP_400_BAD_REQUEST)
         # 获取文件名
-        file_name = file[0].kfile_name
+        file_name = file[0].cpht_name
         # 获取文件路径
-        file_path = file[0].kfile_path
+        file_path = file[0].cpht_file.path
         # 返回二进制文件
-        with open(file_path, 'rb') as f:
-            response = Response(f.read(), content_type='application/octet-stream')
-            # q:Content-Disposition是什么意思？
-            # a:Content-Disposition是一个HTTP标头，它指示浏览器应该如何显示附加的文件。如果您希望浏览器显示文件而不是尝试加载它，您可以使用此标头。
-            response['Content-Disposition'] = 'attachment; filename=' + file_name
-            return response
-
+        # with open(file_path, 'rb') as f:
+        #     response = Response(f.read(), content_type='application/octet-stream')
+        #     # q:Content-Disposition是什么意思？
+        #     # a:Content-Disposition是一个HTTP标头，它指示浏览器应该如何显示附加的文件。如果您希望浏览器显示文件而不是尝试加载它，您可以使用此标头。
+        #     response['Content-Disposition'] = 'attachment; filename=' + file_name
+        #     return response
+        response = FileResponse(open(file_path, 'rb'), content_type='application/octet-stream')  # 使用FileResponse进行流式传输
+        response['Content-Disposition'] = f'attachment; filename=' + file_name
+        return response
 
 # 注册验证码发送api
 class RegistrationAPIView(APIView):

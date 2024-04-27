@@ -183,6 +183,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             jsonMsg['receiver_id'] = event['receiver_id']
             jsonMsg['file_id'] = event['file_id']
             jsonMsg['file_name'] = event['file_name']
+            jsonMsg['user_name'] = event['user_name']
         elif msgType == 'friend.add':
             jsonMsg['user_id'] = event['user_id']
             jsonMsg['receiver_id'] = event['receiver_id']
